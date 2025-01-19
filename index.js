@@ -64,7 +64,7 @@ client.on('interactionCreate', async (interaction) => {
         { name: '<:1HCROSSBOW:1323830693352181832> DPS', value: `(${selectedMembers.dps.length}/4)\n${selectedMembers.dps.join('\n') || ''}`, inline: true }, // DPS field (changed from Crossbow)
         { name: '<:heckerbillionaire:1328380550985158726> Scout', value: `(${selectedMembers.scout.length}/1)\n${selectedMembers.scout.join('\n') || ''}`, inline: true }, // Scout field
       )
-      .setFooter({ text: 'Created By • SchmertBulark' }); // Footer with custom text
+      .setFooter({ text: 'BOT Created By • SchmertBulark' }); // Footer with custom text
       
 
     // Create a dropdown menu (select menu)
@@ -163,7 +163,7 @@ client.on('interactionCreate', async (interaction) => {
         { name: '<:1HCROSSBOW:1323830693352181832> DPS', value: `(${selectedMembers.dps.length}/4)\n${selectedMembers.dps.join('\n') || ''}`, inline: true }, // DPS field (changed from Crossbow)
         { name: '<:heckerbillionaire:1328380550985158726> Scout', value: `(${selectedMembers.scout.length}/1)\n${selectedMembers.scout.join('\n') || ''}`, inline: true }, // Scout field
       )
-      .setFooter({ text: 'Created By • SchmertBulark' }); // Footer with custom text
+      .setFooter({ text: 'BOT Created By • SchmertBulark' }); // Footer with custom text
       
 
     // Recreate the dropdown menu
