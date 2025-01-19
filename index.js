@@ -1,6 +1,13 @@
 const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
+const express = require('express');
 require('dotenv').config();
+
+const app = express();
+
+app.get('/', (req, res) => res.send('Bot is running'));
+
+app.listen(process.env.PORT || 3000, () => console.log('HTTP server is running'));
 
 // Store the selected members for each role
 let selectedMembers = {
