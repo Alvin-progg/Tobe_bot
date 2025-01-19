@@ -1,13 +1,6 @@
 const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
 require('dotenv').config();
-const express = require('express');
-const app = express();
-
-app.get('/', (req, res) => res.send('Bot is running'));
-
-app.listen(process.env.PORT || 3000, () => console.log('HTTP server is running'));
-
 
 // Store the selected members for each role
 let selectedMembers = {
@@ -23,10 +16,10 @@ let selectedMembers = {
 
 // List of authorized user IDs
 const authorizedUsers = new Set([
-    '737458927926640711', // Replace with the first authorized user ID
-    '1000433038267781120',
-    '406841260146556929',
-    '271074647829774347', // Replace with the second authorized user ID
+  '737458927926640711', // Replace with the first authorized user ID
+  '1000433038267781120',
+  '406841260146556929',
+  '271074647829774347', // Replace with the second authorized user ID
 ]);
 
 client.once('ready', () => {
@@ -56,28 +49,23 @@ client.on('interactionCreate', async (interaction) => {
       scout: [],
     };
 
-    // Get the current date and time
-    const now = new Date();
-    const formattedDate = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    const formattedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-
     // Create an embed
     const embed = new EmbedBuilder()
-      .setTitle(`${formattedDate} ${formattedTime}`) // Dynamic title with current date and time
-      .setDescription(`Command executed by **${interaction.member.user.tag}**`) // Include the member who executed the command
+      .setTitle("AVA RAID 10 MAN") // Dynamic title with current date and time
+      .setDescription(`Hoster by **${interaction.member.user.tag}**`) // Include the member who executed the command
       .setColor('#0099ff') // Embed color
       .addFields(
-        { name: 'Hammer', value: `(${selectedMembers.hammer.length}/1)\n${selectedMembers.hammer.join('\n') || 'None'}`, inline: true }, // Hammer field
-        { name: 'Incubus', value: `(${selectedMembers.incubus.length}/1)\n${selectedMembers.incubus.join('\n') || 'None'}`, inline: true }, // Incubus field
-        { name: 'GreatArcane', value: `(${selectedMembers.greatArcane.length}/1)\n${selectedMembers.greatArcane.join('\n') || 'None'}`, inline: true }, // GreatArcane field
-        { name: 'Arcane', value: `(${selectedMembers.arcane.length}/1)\n${selectedMembers.arcane.join('\n') || 'None'}`, inline: true }, // Arcane field
-        { name: 'Holystaff', value: `(${selectedMembers.holystaff.length}/1)\n${selectedMembers.holystaff.join('\n') || 'None'}`, inline: true }, // Holystaff field
-        { name: 'Earthrune', value: `(${selectedMembers.earthrune.length}/1)\n${selectedMembers.earthrune.join('\n') || 'None'}`, inline: true }, // Earthrune field
-        { name: 'DPS', value: `(${selectedMembers.dps.length}/4)\n${selectedMembers.dps.join('\n') || 'None'}`, inline: true }, // DPS field (changed from Crossbow)
-        { name: 'Scout', value: `(${selectedMembers.scout.length}/1)\n${selectedMembers.scout.join('\n') || 'None'}`, inline: true }, // Scout field
+        { name: '<:1handHammer:1323830703720366102> Hammer', value: `(${selectedMembers.hammer.length}/1)\n${selectedMembers.hammer.join('\n') || ''}`, inline: true }, // Hammer field
+        { name: '<:IncubusMace:1323830714503794771> Incubus', value: `(${selectedMembers.incubus.length}/1)\n${selectedMembers.incubus.join('\n') || ''}`, inline: true }, // Incubus field
+        { name: '<:GreatArcaneStaff:1323830700281040977> GreatArcane', value: `(${selectedMembers.greatArcane.length}/1)\n${selectedMembers.greatArcane.join('\n') || ''}`, inline: true }, // GreatArcane field
+        { name: '<:ArcaneStaff:1323830681159336028> Arcane', value: `(${selectedMembers.arcane.length}/1)\n${selectedMembers.arcane.join('\n') || ''}`, inline: true }, // Arcane field
+        { name: '<:HolyStaff:1323830707331530792> Holystaff', value: `(${selectedMembers.holystaff.length}/1)\n${selectedMembers.holystaff.join('\n') || ''}`, inline: true }, // Holystaff field
+        { name: '<:EarthruneStaff:1323831201894760490> Earthrune', value: `(${selectedMembers.earthrune.length}/1)\n${selectedMembers.earthrune.join('\n') || ''}`, inline: true }, // Earthrune field
+        { name: '<:1HCROSSBOW:1323830693352181832> DPS', value: `(${selectedMembers.dps.length}/4)\n${selectedMembers.dps.join('\n') || ''}`, inline: true }, // DPS field (changed from Crossbow)
+        { name: '<:heckerbillionaire:1328380550985158726> Scout', value: `(${selectedMembers.scout.length}/1)\n${selectedMembers.scout.join('\n') || ''}`, inline: true }, // Scout field
       )
-      .setFooter({ text: 'Created By • SchmertBulark' }) // Footer with custom text
-      .setTimestamp(); // Add a timestamp to the embed
+      .setFooter({ text: 'Created By • SchmertBulark' }); // Footer with custom text
+      
 
     // Create a dropdown menu (select menu)
     const selectMenu = new StringSelectMenuBuilder()
@@ -88,41 +76,49 @@ client.on('interactionCreate', async (interaction) => {
           label: 'Hammer',
           description: 'Join as a Hammer',
           value: 'hammer',
+          emoji: { id: '1323830703720366102', name: '1handHammer' }, // Custom emoji for Hammer
         },
         {
           label: 'Incubus',
           description: 'Join as an Incubus',
           value: 'incubus',
+          emoji: { id: '1323830714503794771', name: 'IncubusMace' }, // Custom emoji for Incubus
         },
         {
           label: 'GreatArcane',
           description: 'Join as a GreatArcane',
           value: 'greatArcane',
+          emoji: { id: '1323830700281040977', name: 'GreatArcaneStaff' }, // Custom emoji for GreatArcane
         },
         {
           label: 'Arcane',
           description: 'Join as an Arcane',
           value: 'arcane',
+          emoji: { id: '1323830681159336028', name: 'ArcaneStaff' }, // Custom emoji for Arcane
         },
         {
           label: 'Holystaff',
           description: 'Join as a Holystaff',
           value: 'holystaff',
+          emoji: { id: '1323830707331530792', name: 'HolyStaff' }, // Custom emoji for Holystaff
         },
         {
           label: 'Earthrune',
           description: 'Join as an Earthrune',
           value: 'earthrune',
+          emoji: { id: '1323831201894760490', name: 'EarthruneStaff' }, // Custom emoji for Earthrune
         },
         {
           label: 'DPS', // Changed from Crossbow to DPS
           description: 'Join as a DPS',
           value: 'dps',
+          emoji: { id: '1323830693352181832', name: '1HCROSSBOW' }, // Custom emoji for DPS
         },
         {
           label: 'Scout',
           description: 'Join as a Scout',
           value: 'scout',
+          emoji: { id: '1328380550985158726', name: 'heckerbillionaire' }, // Custom emoji for Scout
         },
       );
 
@@ -152,28 +148,23 @@ client.on('interactionCreate', async (interaction) => {
       selectedMembers[selectedRole].push(memberId); // Add the member
     }
 
-    // Get the current date and time
-    const now = new Date();
-    const formattedDate = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    const formattedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-
     // Create an updated embed
     const updatedEmbed = new EmbedBuilder()
-      .setTitle(`${formattedDate} ${formattedTime}`) // Dynamic title with current date and time
+      .setTitle("AVA RAID 10 MAN") // Dynamic title with current date and time
       .setDescription(`Command executed by **${interaction.member.user.tag}**`) // Include the member who executed the command
       .setColor('#0099ff') // Embed color
       .addFields(
-        { name: 'Hammer', value: `(${selectedMembers.hammer.length}/1)\n${selectedMembers.hammer.join('\n') || 'None'}`, inline: true }, // Hammer field
-        { name: 'Incubus', value: `(${selectedMembers.incubus.length}/1)\n${selectedMembers.incubus.join('\n') || 'None'}`, inline: true }, // Incubus field
-        { name: 'GreatArcane', value: `(${selectedMembers.greatArcane.length}/1)\n${selectedMembers.greatArcane.join('\n') || 'None'}`, inline: true }, // GreatArcane field
-        { name: 'Arcane', value: `(${selectedMembers.arcane.length}/1)\n${selectedMembers.arcane.join('\n') || 'None'}`, inline: true }, // Arcane field
-        { name: 'Holystaff', value: `(${selectedMembers.holystaff.length}/1)\n${selectedMembers.holystaff.join('\n') || 'None'}`, inline: true }, // Holystaff field
-        { name: 'Earthrune', value: `(${selectedMembers.earthrune.length}/1)\n${selectedMembers.earthrune.join('\n') || 'None'}`, inline: true }, // Earthrune field
-        { name: 'DPS', value: `(${selectedMembers.dps.length}/4)\n${selectedMembers.dps.join('\n') || 'None'}`, inline: true }, // DPS field (changed from Crossbow)
-        { name: 'Scout', value: `(${selectedMembers.scout.length}/1)\n${selectedMembers.scout.join('\n') || 'None'}`, inline: true }, // Scout field
+        { name: '<:1handHammer:1323830703720366102> Hammer', value: `(${selectedMembers.hammer.length}/1)\n${selectedMembers.hammer.join('\n') || ''}`, inline: true }, // Hammer field
+        { name: '<:IncubusMace:1323830714503794771> Incubus', value: `(${selectedMembers.incubus.length}/1)\n${selectedMembers.incubus.join('\n') || ''}`, inline: true }, // Incubus field
+        { name: '<:GreatArcaneStaff:1323830700281040977> GreatArcane', value: `(${selectedMembers.greatArcane.length}/1)\n${selectedMembers.greatArcane.join('\n') || ''}`, inline: true }, // GreatArcane field
+        { name: '<:ArcaneStaff:1323830681159336028> Arcane', value: `(${selectedMembers.arcane.length}/1)\n${selectedMembers.arcane.join('\n') || ''}`, inline: true }, // Arcane field
+        { name: '<:HolyStaff:1323830707331530792> Holystaff', value: `(${selectedMembers.holystaff.length}/1)\n${selectedMembers.holystaff.join('\n') || ''}`, inline: true }, // Holystaff field
+        { name: '<:EarthruneStaff:1323831201894760490> Earthrune', value: `(${selectedMembers.earthrune.length}/1)\n${selectedMembers.earthrune.join('\n') || ''}`, inline: true }, // Earthrune field
+        { name: '<:1HCROSSBOW:1323830693352181832> DPS', value: `(${selectedMembers.dps.length}/4)\n${selectedMembers.dps.join('\n') || ''}`, inline: true }, // DPS field (changed from Crossbow)
+        { name: '<:heckerbillionaire:1328380550985158726> Scout', value: `(${selectedMembers.scout.length}/1)\n${selectedMembers.scout.join('\n') || ''}`, inline: true }, // Scout field
       )
-      .setFooter({ text: 'Created By • SchmertBulark' }) // Footer with custom text
-      .setTimestamp(); // Add a timestamp to the embed
+      .setFooter({ text: 'Created By • SchmertBulark' }); // Footer with custom text
+      
 
     // Recreate the dropdown menu
     const selectMenu = new StringSelectMenuBuilder()
@@ -184,41 +175,49 @@ client.on('interactionCreate', async (interaction) => {
           label: 'Hammer',
           description: 'Join as a Hammer',
           value: 'hammer',
+          emoji: { id: '1323830703720366102', name: '1handHammer' }, // Custom emoji for Hammer
         },
         {
           label: 'Incubus',
           description: 'Join as an Incubus',
           value: 'incubus',
+          emoji: { id: '1323830714503794771', name: 'IncubusMace' }, // Custom emoji for Incubus
         },
         {
           label: 'GreatArcane',
           description: 'Join as a GreatArcane',
           value: 'greatArcane',
+          emoji: { id: '1323830700281040977', name: 'GreatArcaneStaff' }, // Custom emoji for GreatArcane
         },
         {
           label: 'Arcane',
           description: 'Join as an Arcane',
           value: 'arcane',
+          emoji: { id: '1323830681159336028', name: 'ArcaneStaff' }, // Custom emoji for Arcane
         },
         {
           label: 'Holystaff',
           description: 'Join as a Holystaff',
           value: 'holystaff',
+          emoji: { id: '1323830707331530792', name: 'HolyStaff' }, // Custom emoji for Holystaff
         },
         {
           label: 'Earthrune',
           description: 'Join as an Earthrune',
           value: 'earthrune',
+          emoji: { id: '1323831201894760490', name: 'EarthruneStaff' }, // Custom emoji for Earthrune
         },
         {
           label: 'DPS', // Changed from Crossbow to DPS
           description: 'Join as a DPS',
           value: 'dps',
+          emoji: { id: '1323830693352181832', name: '1HCROSSBOW' }, // Custom emoji for DPS
         },
         {
           label: 'Scout',
           description: 'Join as a Scout',
           value: 'scout',
+          emoji: { id: '1328380550985158726', name: 'heckerbillionaire' }, // Custom emoji for Scout
         },
       );
 
