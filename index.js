@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, InteractionResponseFlags } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
 const express = require('express');
 require('dotenv').config();
@@ -17,7 +17,7 @@ const ROLE_LIMITS = {
   arcane: 1,
   holystaff: 1,
   earthrune: 1,
-  dps: 4,
+  dps: 4, // Default limit for DPS (can be overridden dynamically)
   scout: 1,
 };
 
@@ -30,6 +30,8 @@ const EMOJI_IDS = {
   earthrune: '1323831201894760490',
   dps: '1323830693352181832',
   scout: '1328380550985158726',
+  date: '1331255531951882260',
+  time: '1331255557578948619'
 };
 
 // Store the selected members for each role
@@ -44,6 +46,11 @@ let selectedMembers = {
   scout: [],
 };
 
+// Store the UTC time, date, and host's mention for the raid
+let raidUtcTime = '';
+let raidDate = '';
+let hostUser = ''; // Store the host's mention
+
 // Load authorized users from environment variables
 const authorizedUsers = new Set((process.env.AUTHORIZED_USERS || '').split(','));
 
@@ -52,10 +59,10 @@ client.once('ready', () => {
 });
 
 // Helper function to create the raid embed
-function createRaidEmbed(selectedMembers, hostUser, utcTime) {
+function createRaidEmbed(selectedMembers, hostUser, utcTime, date) {
   return new EmbedBuilder()
     .setTitle("AVA RAID 10 MAN")
-    .setDescription(`Hosted by **${hostUser}**\nUTC Time: **${utcTime}**`)
+    .setDescription(`Hosted by **${hostUser}**\n\n<:calendar_spiral:${EMOJI_IDS.date}> Date: **${date}**\n\n<:timer:${EMOJI_IDS.time}> UTC Time: **${utcTime}**\n\n`)
     .setColor('#0099ff')
     .addFields(
       { name: `<:1handHammer:${EMOJI_IDS.hammer}> Hammer (${selectedMembers.hammer.length}/${ROLE_LIMITS.hammer})`, value: `${selectedMembers.hammer.join('\n') || ' '}`, inline: true },
@@ -64,7 +71,7 @@ function createRaidEmbed(selectedMembers, hostUser, utcTime) {
       { name: `<:ArcaneStaff:${EMOJI_IDS.arcane}> Arcane (${selectedMembers.arcane.length}/${ROLE_LIMITS.arcane})`, value: `${selectedMembers.arcane.join('\n') || ' '}`, inline: true },
       { name: `<:HolyStaff:${EMOJI_IDS.holystaff}> Holystaff (${selectedMembers.holystaff.length}/${ROLE_LIMITS.holystaff})`, value: `${selectedMembers.holystaff.join('\n') || ' '}`, inline: true },
       { name: `<:EarthruneStaff:${EMOJI_IDS.earthrune}> Earthrune (${selectedMembers.earthrune.length}/${ROLE_LIMITS.earthrune})`, value: `${selectedMembers.earthrune.join('\n') || ' '}`, inline: true },
-      { name: `<:1HCROSSBOW:${EMOJI_IDS.dps}> DPS (${selectedMembers.dps.length}/${ROLE_LIMITS.dps})`, value: `${selectedMembers.dps.join('\n') || ' '}`, inline: true },
+      { name: `<:1HCROSSBOW:${EMOJI_IDS.dps}> DPS (${selectedMembers.dps.length}/${selectedMembers.dps.length})`, value: `${selectedMembers.dps.join('\n') || ' '}`, inline: true }, // Dynamic limit for DPS
       { name: `<:heckerbillionaire:${EMOJI_IDS.scout}> Scout (${selectedMembers.scout.length}/${ROLE_LIMITS.scout})`, value: `${selectedMembers.scout.join('\n') || ' '}`, inline: true },
     )
     .setFooter({ text: 'BOT Created By • SchmertBulark' });
@@ -93,13 +100,19 @@ const { REST, Routes } = require('discord.js');
 const commands = [
   {
     name: 'raid',
-    description: 'Start a raid with a UTC time',
+    description: 'Start a raid with a UTC time and date',
     options: [
       {
         name: 'utc',
         description: 'The UTC time for the raid',
         type: 3, // STRING type
-        required: true, // Make it mandatory
+        required: true,
+      },
+      {
+        name: 'date',
+        description: 'The date for the raid (e.g., YYYY-MM-DD)',
+        type: 3, // STRING type
+        required: true,
       },
     ],
   },
@@ -109,7 +122,7 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 (async () => {
   try {
-    await rest.put(Routes.applicationCommands('YOUR_CLIENT_ID'), { body: commands });
+    await rest.put(Routes.applicationCommands(process.env.clientId), { body: commands }); // Replace with your bot's Client ID
     console.log('Slash commands registered successfully!');
   } catch (error) {
     console.error('Error registering slash commands:', error);
@@ -123,12 +136,17 @@ client.on('interactionCreate', async (interaction) => {
 
     // Check if the user is authorized
     if (!authorizedUsers.has(interaction.user.id)) {
-      await interaction.reply({ content: 'You are not authorized to use this command. Contact an admin for access.', ephemeral: true });
+      await interaction.reply({ content: 'You are not authorized to use this command. Contact an admin for access.', flags: InteractionResponseFlags.Ephemeral });
       return;
     }
 
-    // Get the UTC time from the command option
-    const utcTime = interaction.options.getString('utc');
+    // Get the UTC time and date from the command options
+    raidUtcTime = interaction.options.getString('utc'); // Store the UTC time
+    raidDate = interaction.options.getString('date'); // Store the date
+    hostUser = interaction.user.toString(); // Store the host's mention
+    console.log('UTC Time:', raidUtcTime);
+    console.log('Date:', raidDate);
+    console.log('Host:', hostUser);
 
     // Reset the selectedMembers object
     selectedMembers = {
@@ -142,8 +160,8 @@ client.on('interactionCreate', async (interaction) => {
       scout: [],
     };
 
-    // Create the embed with the UTC time and user mention
-    const embed = createRaidEmbed(selectedMembers, interaction.user.toString(), utcTime);
+    // Create the embed with the UTC time, date, and host's mention
+    const embed = createRaidEmbed(selectedMembers, hostUser, raidUtcTime, raidDate);
     const selectMenu = createRoleMenu();
     const row = new ActionRowBuilder().addComponents(selectMenu);
 
@@ -174,9 +192,9 @@ client.on('interactionCreate', async (interaction) => {
         }
       }
 
-      // Check if the selected role is full
-      if (selectedMembers[selectedRole].length >= ROLE_LIMITS[selectedRole]) {
-        await interaction.reply({ content: `The ${selectedRole} role is already full.`, ephemeral: true });
+      // Check if the selected role is full (except for DPS)
+      if (selectedRole !== 'dps' && selectedMembers[selectedRole].length >= ROLE_LIMITS[selectedRole]) {
+        await interaction.reply({ content: `The ${selectedRole} role is already full.`, flags: InteractionResponseFlags.Ephemeral });
         return;
       }
 
@@ -185,7 +203,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // Create an updated embed and role menu
-    const updatedEmbed = createRaidEmbed(selectedMembers, interaction.user.toString(), interaction.options.getString('utc'));
+    const updatedEmbed = createRaidEmbed(selectedMembers, hostUser, raidUtcTime, raidDate); // Use the stored host's mention
     const selectMenu = createRoleMenu();
     const row = new ActionRowBuilder().addComponents(selectMenu);
 
@@ -195,13 +213,15 @@ client.on('interactionCreate', async (interaction) => {
     } catch (error) {
       console.error('Error updating interaction:', error);
       if (error.code === 10062) { // Unknown interaction
-        await interaction.followUp({ content: 'This interaction has expired. Please use the command again.', ephemeral: true });
+        await interaction.followUp({ content: 'This interaction has expired. Please use the command again.', flags: InteractionResponseFlags.Ephemeral });
       } else {
-        await interaction.followUp({ content: 'An error occurred while updating the interaction.', ephemeral: true });
+        await interaction.followUp({ content: 'An error occurred while updating the interaction.', flags: InteractionResponseFlags.Ephemeral });
       }
     }
   }
 });
 
 // Log in to Discord
-client.login(process.env.TOKEN);
+client.login(process.env.TOKEN).catch((error) => {
+  console.error('Failed to log in:', error);
+});
