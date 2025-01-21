@@ -45,17 +45,17 @@ let selectedMembers = {
 };
 
 // Load authorized users from environment variables
-const authorizedUsers = new Set(process.env.AUTHORIZED_USERS.split(','));
+const authorizedUsers = new Set((process.env.AUTHORIZED_USERS || '').split(','));
 
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
 // Helper function to create the raid embed
-function createRaidEmbed(selectedMembers, hostTag) {
+function createRaidEmbed(selectedMembers, hostUser, utcTime) {
   return new EmbedBuilder()
     .setTitle("AVA RAID 10 MAN")
-    .setDescription(`Hosted by **${hostTag}**`)
+    .setDescription(`Hosted by **${hostUser}**\nUTC Time: **${utcTime}**`)
     .setColor('#0099ff')
     .addFields(
       { name: `<:1handHammer:${EMOJI_IDS.hammer}> Hammer (${selectedMembers.hammer.length}/${ROLE_LIMITS.hammer})`, value: `${selectedMembers.hammer.join('\n') || ' '}`, inline: true },
@@ -88,6 +88,34 @@ function createRoleMenu() {
     );
 }
 
+// Register slash commands
+const { REST, Routes } = require('discord.js');
+const commands = [
+  {
+    name: 'raid',
+    description: 'Start a raid with a UTC time',
+    options: [
+      {
+        name: 'utc',
+        description: 'The UTC time for the raid',
+        type: 3, // STRING type
+        required: true, // Make it mandatory
+      },
+    ],
+  },
+];
+
+const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
+
+(async () => {
+  try {
+    await rest.put(Routes.applicationCommands('YOUR_CLIENT_ID'), { body: commands });
+    console.log('Slash commands registered successfully!');
+  } catch (error) {
+    console.error('Error registering slash commands:', error);
+  }
+})();
+
 client.on('interactionCreate', async (interaction) => {
   // Handle the /raid command
   if (interaction.isCommand() && interaction.commandName === 'raid') {
@@ -98,6 +126,9 @@ client.on('interactionCreate', async (interaction) => {
       await interaction.reply({ content: 'You are not authorized to use this command. Contact an admin for access.', ephemeral: true });
       return;
     }
+
+    // Get the UTC time from the command option
+    const utcTime = interaction.options.getString('utc');
 
     // Reset the selectedMembers object
     selectedMembers = {
@@ -111,11 +142,12 @@ client.on('interactionCreate', async (interaction) => {
       scout: [],
     };
 
-    // Create and send the embed with the role selection menu
-    const embed = createRaidEmbed(selectedMembers, interaction.member.user.tag);
+    // Create the embed with the UTC time and user mention
+    const embed = createRaidEmbed(selectedMembers, interaction.user.toString(), utcTime);
     const selectMenu = createRoleMenu();
     const row = new ActionRowBuilder().addComponents(selectMenu);
 
+    // Send the embed and dropdown menu
     await interaction.reply({ embeds: [embed], components: [row] });
   }
 
@@ -153,7 +185,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // Create an updated embed and role menu
-    const updatedEmbed = createRaidEmbed(selectedMembers, interaction.member.user.tag);
+    const updatedEmbed = createRaidEmbed(selectedMembers, interaction.user.toString(), interaction.options.getString('utc'));
     const selectMenu = createRoleMenu();
     const row = new ActionRowBuilder().addComponents(selectMenu);
 
