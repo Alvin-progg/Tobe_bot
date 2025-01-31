@@ -122,7 +122,7 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 (async () => {
   try {
-    await rest.put(Routes.applicationCommands(process.env.clientId), { body: commands }); // Replace with your bot's Client ID
+    await rest.put(Routes.applicationCommands(process.env.clientId), { body: commands });
     console.log('Slash commands registered successfully!');
   } catch (error) {
     console.error('Error registering slash commands:', error);
@@ -185,14 +185,13 @@ client.on('interactionCreate', async (interaction) => {
         }
       }
     } else {
-      // Remove the member from their previous role (if any)
+ 
       for (const role in selectedMembers) {
         if (selectedMembers[role].includes(memberId)) {
           selectedMembers[role] = selectedMembers[role].filter((id) => id !== memberId); // Remove the member
         }
       }
 
-      // Check if the selected role is full (except for DPS)
       if (selectedRole !== 'dps' && selectedMembers[selectedRole].length >= ROLE_LIMITS[selectedRole]) {
         await interaction.reply({ content: `The ${selectedRole} role is already full.`, flags: InteractionResponseFlags.Ephemeral });
         return;
