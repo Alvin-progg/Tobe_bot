@@ -17,7 +17,7 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
   try {
     console.log('Registering commands...');
     await rest.put(
-      Routes.applicationGuildCommands(clientId, guildId), // Register for a specific guild
+       // Register for a specific guild
       { body: commands }
     );
     console.log('Commands registered!');
